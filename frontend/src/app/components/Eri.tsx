@@ -11,7 +11,11 @@ import { connect, disconnect } from "starknetkit";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { getTypedDataHash, SimpleStruct } from "../resources/structType";
+import {
+  getTypedDataHash,
+  SimpleStruct,
+  getTypedData,
+} from "../resources/structType";
 
 export default function App() {
   const [address, setAddress] = useState<string | null>(null);
@@ -106,6 +110,20 @@ export default function App() {
 
       const msgHash = getTypedDataHash(simpleStruct, address!);
       console.log("Message Hash:", msgHash);
+
+      //TODO: THIS IS UNNECESSARY AND WILL REMOVE IT LATER
+      const signature = await account.signMessage(certTypedData);
+      console.log("Signature:", signature);
+      
+      const hashedMsg: string = await account.hashMessage(certTypedData);
+      
+      const isValid: boolean = await provider!.verifyMessageInStarknet(
+          hashedMsg,
+          signature,
+          address
+      );
+      console.log("Off-chain verification: ", isValid);
+      //TODO============================================================
 
       const result = await contract.transfer_with_signature(
         address,
